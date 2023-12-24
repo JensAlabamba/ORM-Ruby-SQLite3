@@ -54,3 +54,38 @@ CREATE TABLE question_likes(
     FOREIGN KEY (question_id) REFERENCES questions(id)
 );
 
+INSERT INTO 
+    users(fname, lname)
+VALUES
+    ("Adam", "Driver"),
+    ("Monica", "Adams"),
+    ("Greta", "van Fleet"),
+    ("Mathew", "Berry");
+
+INSERT INTO 
+    questions(title, body, author_id)
+VALUES
+    ("How do I start?", "I was wondering how to start my adventure with programming.", (SELECT id FROM users WHERE fname = "Adam" AND lname = "Driver")),
+    ("Do we need SQL?", "Is SQL needed to become a FSD?", (SELECT id FROM users WHERE fname = "Greta" AND lname = "van Fleet"));
+
+INSERT INTO 
+    question_follows(question_id, follower_id)
+VALUES
+    (1, 4),
+    (2, 4),
+    (1, 2),
+    (2, 3); 
+
+INSERT INTO
+    replies(question_id, body, user_id, parent_reply)
+VALUES
+    (1, "Start with App Academy Open!", 4, NULL),
+    (1, "Thank you, I''ll check it out.", 1, 1),
+    (2, "It is very usefull. Worth it.", 4, NULL),
+    (2, "Than I will try to get some expierience", 3, 3);
+
+INSERT INTO 
+    question_likes(user_id, question_id, liked)
+VALUES
+    (4, 2, true),
+    (2, 1, true);
