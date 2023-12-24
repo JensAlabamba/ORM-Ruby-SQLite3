@@ -1,0 +1,15 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    singleton (0.2.0)
+    sqlite3 (1.6.9-arm64-darwin)
+
+PLATFORMS
+  arm64-darwin-22
+
+DEPENDENCIES
+  singleton
+  sqlite3
+
+BUNDLED WITH
+   2.4.7
