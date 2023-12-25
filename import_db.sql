@@ -87,5 +87,5 @@ VALUES
 INSERT INTO 
     question_likes(user_id, question_id, liked)
 VALUES
-    (4, 2, true),
-    (2, 1, true);
+    (4, 2, "true"),
+    (2, 1, "true");

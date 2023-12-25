@@ -138,6 +138,19 @@ class Question
           Question.new(question.first)
      end
 
+     def self.find_by_author_id(id)
+          question = QuestionsDBConnection.instance.execute(<<-SQL, id)
+          SELECT 
+               *
+          FROM
+               questions
+          WHERE 
+               author_id = ?
+          SQL
+          return nil unless question.length > 0
+          question.map { |q| Question.new(q) }
+     end
+
      def self.find_by_body_part(part)
           question = QuestionsDBConnection.instance.execute(<<-SQL, "%#{part}%")
           SELECT 
@@ -150,9 +163,26 @@ class Question
           return nil unless question.length > 0
           Question.new(question.first)
      end
+
+     def self.find_by_author_name(fname, lname)
+          question = QuestionsDBConnection.instance.execute(<<-SQL, fname, lname)
+          SELECT 
+               *
+          FROM
+               questions
+          JOIN 
+               users ON users.id = questions.author_id
+          WHERE
+               fname = ? AND lname = ?
+          SQL
+          return nil unless question.length > 0
+          Question.new(question.first)
+     end
 end
 
 class Question_follow
+
+     attr_accessor :question_id, :follower_id
 
      def self.all
           data = QuestionsDBConnection.instance.execute("SELECT * FROM question_follows;")
@@ -163,10 +193,24 @@ class Question_follow
           @question_id = options['question_id']
           @follower_id = options['follower_id']
      end
+
+     def self.find_by_question_id(id)
+          question = QuestionsDBConnection.instance.execute(<<-SQL, id)
+          SELECT 
+               * 
+          FROM
+               question_follows
+          WHERE 
+               question_id = ?
+          SQL
+          return nil unless question.length > 0
+         question.map { |datum| Question_follow.new(datum) }
+     end
 end
 
 class Reply
 
+     attr_accessor :id, :question_id, :body, :user_id, :parent_reply
      def self.all
           data = QuestionsDBConnection.instance.execute("SELECT * FROM replies;")
           data.map { |datum| Reply.new(datum) }
@@ -179,9 +223,24 @@ class Reply
           @user_id = options['user_id']
           @parent_reply = options['parent_reply']
      end
+
+     def self.find_by_id(id)
+          reply = QuestionsDBConnection.instance.execute(<<-SQL, id)
+          SELECT 
+               *
+          FROM
+               replies
+          WHERE 
+               id = ?
+          SQL
+          return nil unless reply.length > 0
+          Reply.new(reply.first)
+     end
 end
 
 class Question_like
+
+     attr_accessor :user_id, :question_id, :liked
 
      def self.all
           data = QuestionsDBConnection.instance.execute("SELECT * FROM question_likes;")
@@ -192,5 +251,31 @@ class Question_like
           @user_id = options['user_id']
           @question_id = options['question_id']
           @liked = options['liked']
+     end
+
+     def self.find_by_user_id(id)
+          liked = QuestionsDBConnection.instance.execute(<<-SQL, id)
+          SELECT
+               * 
+          FROM
+               question_likes
+          WHERE
+               user_id = ?
+          SQL
+          return nil unless liked.length > 0
+          liked.map { |like| Question_like.new(like) }
+     end
+
+     def self.find_by_question_id(id)
+          liked = QuestionsDBConnection.instance.execute(<<-SQL, id)
+          SELECT
+               * 
+          FROM
+               question_likes
+          WHERE
+               question_id = ?
+          SQL
+          return nil unless liked.length > 0
+          liked.map { |like| Question_like.new(like) }
      end
 end
