@@ -73,6 +73,34 @@ class User
           return nil unless user.length > 0 
           User.new(user.first)
      end
+
+     def self.authored_questions
+          
+          ids = QuestionsDBConnection.instance.execute(<<-SQL)
+               SELECT
+               id
+               FROM
+               users
+          SQL
+          ids.map do |id_hash|
+               id = id_hash['id']
+              Question.find_by_author_id(id)
+          end
+     end
+
+     def self.authored_replies
+          
+          ids = QuestionsDBConnection.instance.execute(<<-SQL)
+               SELECT
+               id
+               FROM
+               users
+          SQL
+          ids.map do |id_hash|
+               id = id_hash['id']
+              Reply.find_by_user_id(id)
+          end
+     end
 end
 
 class Question
@@ -178,6 +206,19 @@ class Question
           return nil unless question.length > 0
           Question.new(question.first)
      end
+
+     def self.replies
+          replies = QuestionsDBConnection.instance.execute(<<-SQL)
+          SELECT 
+               id
+          FROM
+               questions
+          SQL
+          replies.map do |id|
+               question_id = id['id']
+               Reply.find_by_question_id(question_id)
+          end
+     end
 end
 
 class Question_follow
@@ -235,6 +276,58 @@ class Reply
           SQL
           return nil unless reply.length > 0
           Reply.new(reply.first)
+     end
+
+     def self.find_by_user_id(id)
+          reply = QuestionsDBConnection.instance.execute(<<-SQL, id)
+          SELECT 
+               *
+          FROM
+               replies
+          WHERE 
+               user_id = ?
+          SQL
+          return nil unless reply.length > 0
+          Reply.new(reply.first)
+     end
+
+     def self.find_by_question_id(id)
+          reply = QuestionsDBConnection.instance.execute(<<-SQL, id)
+          SELECT 
+               *
+          FROM
+               replies
+          WHERE
+               question_id = ?
+          SQL
+          return nil unless reply.length > 0
+          reply.map { |rep| Reply.new(rep) }
+     end
+
+     def author
+          author = QuestionsDBConnection.instance.execute(<<-SQL)
+          SELECT 
+               *
+          FROM
+               users
+          JOIN
+               replies ON replies.user_id = users.id
+          SQL
+          return nil unless author.length > 0
+          User.new(author.first)
+     end
+     
+     def question
+          question = QuestionsDBConnection.instance.execute(<<-SQL)
+          SELECT 
+               questions.*
+          FROM
+               questions
+          JOIN
+               replies ON replies.question_id = questions.id
+          SQL
+          return nil unless question.length > 0
+          Question.new(question.first)
      end
 end
 
