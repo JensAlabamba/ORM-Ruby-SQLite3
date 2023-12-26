@@ -329,6 +329,20 @@ class Reply
           return nil unless question.length > 0
           Question.new(question.first)
      end
+
+     def self.parent_reply
+          raise "#{self} is a first reply." unless @parent_reply
+          parent_id = @parent_reply
+          parent = QuestionsDBConnection.instance.execute(<<-SQL, parent_id)
+          SELECT
+               *
+          FROM
+               replies
+          WHERE 
+               id = ?          
+          SQL
+          Reply.new(parent.first)
+     end
 end
 
 class Question_like
